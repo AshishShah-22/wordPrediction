@@ -21,6 +21,8 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 def load_my_model():
     return load_model("next_Word_predition.h5")
 
+Gru_model = load_model("Word_prediction_Gru.h5")
+
 
 # -----------------------------
 # Load Tokenizer (Cached)
@@ -39,7 +41,7 @@ index_word = {v: k for k, v in tokenizer.word_index.items()}
 
 
 # -----------------------------
-# Prediction Function
+# Prediction Function for LSTM Model
 # -----------------------------
 def predict_next_word(text):
     max_sequence_len = model.input_shape[1] + 1
@@ -65,6 +67,25 @@ def predict_next_word(text):
     return index_word.get(predicted_index, "Word not found")
 
 
+# -----------------------------
+# Prediction Function for GRU Model
+#------------------------------
+
+def predict_next_word_gru(text):
+    max_sequence_len = Gru_model.input_shape[1] +1
+    token_list = tokenizer.texts_to_sequences([text])[0]
+    if len(token_list)==0:
+        return "No known words found."
+    token_list = token_list[-(max_sequence_len - 1):]
+    token_list = pad_sequences(
+        [token_list],
+        maxlen = max_sequence_len -1,
+        padding = 'pre'
+    )
+    prediction = Gru_model.predict(token_list,verbose=0)
+    predicted_index = np.argmax(prediction, axis=-1)[0]
+
+    return index_word.get(predicted_index, )
 
 # Streamlit UI
 
@@ -73,14 +94,27 @@ st.set_page_config(
     page_icon="🧠"
 )
 
-st.title("🧠 Next Word Prediction using LSTM")
+st.title("Next Word Prediction using LSTM")
 
-input_text = st.text_input(
+input_text1 = st.text_input(
     "Enter a sentence",
     "To be or not to be"
 )
 
-if st.button("Predict Next Word"):
-    next_word = predict_next_word(input_text)
+if st.button("Predict Next Word1"):
+    next_word1 = predict_next_word(input_text1)
 
-    st.success(f"Predicted Next Word: **{next_word}**")
+    st.success(f"Predicted Next Word: **{next_word1}**")
+
+
+st.title(" Next Word Prediction using GRU")
+
+input_text2 = st.text_input(
+    "Enter a sentence",
+
+)
+
+if st.button("Predict Next Word2"):
+    next_word2 = predict_next_word_gru(input_text2)
+
+    st.success(f"Predicted Next Word: **{next_word2}**")
