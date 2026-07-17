@@ -7,7 +7,9 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 import numpy as np
 import pickle
 import streamlit as st
+import keras
 
+keras.config.enable_unsafe_deserialization()
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
@@ -17,7 +19,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 # -----------------------------
 @st.cache_resource
 def load_my_model():
-    return load_model("next_Word_predition.h5", safe_mode=False)
+    return load_model("next_Word_predition.h5")
 
 
 # -----------------------------
